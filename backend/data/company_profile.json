@@ -1,0 +1,12 @@
+{
+  "name": "NovaTech",
+  "industry": "B2B SaaS",
+  "location": "London, UK",
+  "founded": 2022,
+  "team_size": 12,
+  "product": "API infrastructure platform",
+  "stage": "Seed",
+  "investors": ["Seedcamp", "Angel syndicate"],
+  "arr": 380000,
+  "target_arr": 1000000
+}

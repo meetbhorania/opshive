@@ -1,0 +1,58 @@
+{
+  "company": "NovaTech",
+  "team_size": 12,
+  "crm": {
+    "leads": [
+      {
+        "name": "Barclays Enterprise",
+        "value": 85000,
+        "last_contact_days": 6,
+        "status": "negotiation"
+      },
+      {
+        "name": "Lloyds Digital",
+        "value": 42000,
+        "last_contact_days": 2,
+        "status": "proposal"
+      }
+    ],
+    "pipeline_total": 127000,
+    "pipeline_change_pct": -18
+  },
+  "finance": {
+    "overdue_invoices": [
+      { "client": "Apex Ltd", "amount": 18500, "days_overdue": 14 },
+      { "client": "TechVault", "amount": 21000, "days_overdue": 9 },
+      { "client": "GridCo", "amount": 7500, "days_overdue": 22 }
+    ],
+    "total_exposure": 47000,
+    "monthly_burn": 68000,
+    "runway_months": 4.2
+  },
+  "support": {
+    "ticket_volume_change_pct": 340,
+    "open_tickets": 47,
+    "top_complaint": "API timeout on checkout",
+    "sla_breaches": 4,
+    "avg_response_time_hrs": 8.3
+  },
+  "marketing": {
+    "competitor": "RivalCo",
+    "event": "price_cut",
+    "amount_pct": 15,
+    "hours_ago": 2,
+    "our_price": 299,
+    "their_new_price": 249
+  },
+  "ops": {
+    "deadline_conflicts": [
+      {
+        "engineers": ["Dev A", "Dev B"],
+        "task": "Payment gateway refactor",
+        "due": "tomorrow"
+      }
+    ],
+    "blocked_tasks": 3,
+    "team_capacity_pct": 94
+  }
+}
