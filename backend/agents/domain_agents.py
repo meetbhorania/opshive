@@ -1,11 +1,15 @@
 import google.generativeai as genai
 from agents.base_agent import BaseAgent
-import json
+import os, json
+from dotenv import load_dotenv
+
+load_dotenv()
+genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 
 class MarketingAgent(BaseAgent):
     def __init__(self):
         super().__init__("marketing", "Jamie Patel", "Competitor Watch")
-        self.model = genai.GenerativeModel("gemini-1.5-flash")
+        self.model = genai.GenerativeModel("gemini-2.0-flash")
 
     async def analyse(self, scenario: dict) -> dict:
         self.set_status("thinking", "Scanning competitor activity...")
@@ -36,7 +40,7 @@ Respond ONLY with valid JSON, no markdown."""
 class SupportAgent(BaseAgent):
     def __init__(self):
         super().__init__("support", "Riley Chen", "Ticket Triage")
-        self.model = genai.GenerativeModel("gemini-1.5-flash")
+        self.model = genai.GenerativeModel("gemini-2.0-flash")
 
     async def analyse(self, scenario: dict) -> dict:
         self.set_status("thinking", "Scanning support queue...")
@@ -67,7 +71,7 @@ Respond ONLY with valid JSON, no markdown."""
 class OpsAgent(BaseAgent):
     def __init__(self):
         super().__init__("ops", "Sam Brooks", "Task Coordinator")
-        self.model = genai.GenerativeModel("gemini-1.5-flash")
+        self.model = genai.GenerativeModel("gemini-2.0-flash")
 
     async def analyse(self, scenario: dict) -> dict:
         self.set_status("thinking", "Scanning task board and team capacity...")
