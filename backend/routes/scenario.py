@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from mcp.context_layer import mcp_context
+from context.context_layer import mcp_context
 from orchestrator.coordinator import coordinator
 from orchestrator.a2a_bus import a2a_bus
 from state import agent_registry
