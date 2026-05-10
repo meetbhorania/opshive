@@ -26,7 +26,7 @@ async def reset_scenario():
 async def run_crisis_sequence(scenario: dict):
     agents = agent_registry
     fallbacks = {
-        "finance": ("alert", "£47,000 overdue invoices — cash flow critical", "Chase all overdue invoices today"),
+        "finance": ("alert", "47,000 GBP overdue invoices — cash flow critical", "Chase all overdue invoices today"),
         "support": ("alert", "Tickets up 340% — API timeout on checkout", "Engineering must fix checkout API today"),
         "marketing": ("sending", "RivalCo cut prices 15% — act now", "Update sales pitch deck immediately"),
         "sales": ("alert", "Top prospect cold 6 days — deal at risk", "Call Barclays Enterprise today"),
@@ -54,7 +54,7 @@ async def run_crisis_sequence(scenario: dict):
     try:
         brief = await agents["ceo"].generate_brief([a.state.to_dict() for a in agents.values()])
     except Exception:
-        brief = "Attention. Three critical issues require immediate action. Finance reports £47,000 in overdue invoices threatening cash flow. Support tickets have spiked 340% due to API timeouts on checkout. Our top sales prospect has gone cold for six days while RivalCo just cut prices by 15%. Recommended priority: chase invoices today, escalate API fix to engineering, and call Barclays Enterprise immediately."
+        brief = "Attention. Three critical issues require immediate action. Finance reports 47,000 GBP in overdue invoices threatening cash flow. Support tickets have spiked 340% due to API timeouts on checkout. Our top sales prospect has gone cold for six days while RivalCo just cut prices by 15%. Recommended priority: chase invoices today, escalate API fix to engineering, and call Barclays Enterprise immediately."
 
     mcp_context.set("latest_brief", brief)
     agents["ceo"].set_status("alert", "War room brief delivered", alert=brief[:100])

@@ -4,8 +4,14 @@ from routes.agents import router as agents_router
 from routes.scenario import router as scenario_router
 from routes.brief import router as brief_router
 from routes.websocket import router as ws_router
+from routes.chat import router as chat_router
+from routes.toggle import router as toggle_router
 
-app = FastAPI(title="OpsHive API", version="1.0.0")
+app = FastAPI(
+    title="OpsHive API",
+    version="1.0.0",
+    default_response_class=None
+)
 
 app.add_middleware(
     CORSMiddleware,
@@ -15,11 +21,28 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+from fastapi.responses import JSONResponse
+import json
+
+class UTF8JSONResponse(JSONResponse):
+    def render(self, content) -> bytes:
+        return json.dumps(
+            content,
+            ensure_ascii=False,
+            allow_nan=False,
+            indent=None,
+            separators=(",", ":")
+        ).encode("utf-8")
+
+app.router.default_response_class = UTF8JSONResponse
+
 app.include_router(agents_router, prefix="/agents")
 app.include_router(scenario_router, prefix="/scenario")
 app.include_router(brief_router, prefix="/brief")
 app.include_router(ws_router)
+app.include_router(chat_router, prefix="/ceo")
+app.include_router(toggle_router, prefix="/agents")
 
 @app.get("/health")
 async def health():
-    return {"status": "ok", "service": "OpsHive"}
+    return UTF8JSONResponse({"status": "ok", "service": "OpsHive"})
