@@ -9,7 +9,7 @@ genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 class SalesAgent(BaseAgent):
     def __init__(self):
         super().__init__("sales", "Alex Carter", "Pipeline Monitor")
-        self.model = genai.GenerativeModel("gemini-2.0-flash")
+        self.model = genai.GenerativeModel("gemini-2.5-flash")
 
     async def analyse(self, scenario: dict) -> dict:
         self.set_status("thinking", "Scanning pipeline health...")
