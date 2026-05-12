@@ -15,6 +15,7 @@ export default function Dashboard() {
     const [currentTime, setCurrentTime] = useState('')
     const [activeTab, setActiveTab] = useState<'office' | 'agents' | 'chat'>('office')
     const [companyName, setCompanyName] = useState('NovaTech')
+    const [actions, setActions] = useState<any[]>([])
 
     useEffect(() => {
         const stored = localStorage.getItem('opshive_company')
@@ -40,6 +41,18 @@ export default function Dashboard() {
         return () => clearInterval(interval)
     }, [])
 
+    useEffect(() => {
+        const pollActions = async () => {
+            try {
+                const res = await fetch('http://127.0.0.1:8000/agent/actions')
+                const data = await res.json()
+                setActions(data.actions || [])
+            } catch { }
+        }
+        const interval = setInterval(pollActions, 2000)
+        return () => clearInterval(interval)
+    }, [])
+
     const handleTrigger = async () => {
         setTriggering(true)
         await triggerCrisis()
@@ -50,6 +63,7 @@ export default function Dashboard() {
         await resetScenario()
         setBrief(null)
         setChatResponse(null)
+        setActions([])
     }
 
     const handleChat = async () => {
@@ -70,11 +84,27 @@ export default function Dashboard() {
         setChatLoading(false)
     }
 
+    const handleAction = async (actionId: string, decision: 'approve' | 'dismiss') => {
+        try {
+            await fetch(`http://127.0.0.1:8000/agent/actions/${decision}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action_id: actionId })
+            })
+            setActions(prev => prev.map(a =>
+                a.id === actionId
+                    ? { ...a, status: decision === 'approve' ? 'approved' : 'dismissed' }
+                    : a
+            ))
+        } catch { }
+    }
+
     const getStatusConfig = (status: string) => {
         switch (status) {
             case 'alert': return { bg: '#FEF2F2', border: '#FECACA', badge: '#FEE2E2', badgeText: '#991B1B', dot: '#E24B4A', label: 'Alert' }
             case 'thinking': return { bg: '#FFFBEB', border: '#FDE68A', badge: '#FEF3C7', badgeText: '#92400E', dot: '#EF9F27', label: 'Thinking' }
             case 'sending': return { bg: '#EFF6FF', border: '#BFDBFE', badge: '#DBEAFE', badgeText: '#1E40AF', dot: '#378ADD', label: 'Sending' }
+            case 'completed': return { bg: '#F0FDF4', border: '#86EFAC', badge: '#DCFCE7', badgeText: '#166534', dot: '#22C55E', label: '✓ Resolved' }
             default: return { bg: '#F0FDF4', border: '#BBF7D0', badge: '#DCFCE7', badgeText: '#166534', dot: '#639922', label: 'Idle' }
         }
     }
@@ -88,6 +118,7 @@ export default function Dashboard() {
     }
 
     const alertCount = agents.filter(a => a.status === 'alert').length
+    const pendingActions = actions.filter(a => a.status === 'pending')
 
     const tabs = [
         { key: 'office', label: '🏢 Office View' },
@@ -122,7 +153,7 @@ export default function Dashboard() {
                 </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', height: 'calc(100vh - 57px)' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 360px', height: 'calc(100vh - 57px)' }}>
 
                 {/* Left — tabbed panel */}
                 <div style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
@@ -134,15 +165,12 @@ export default function Dashboard() {
                                 key={tab.key}
                                 onClick={() => setActiveTab(tab.key as any)}
                                 style={{
-                                    padding: '10px 20px',
-                                    fontSize: '12px',
-                                    fontWeight: '500',
+                                    padding: '10px 20px', fontSize: '12px', fontWeight: '500',
                                     border: 'none',
                                     borderBottom: activeTab === tab.key ? '2px solid #639922' : '2px solid transparent',
                                     background: 'transparent',
                                     color: activeTab === tab.key ? '#639922' : '#888780',
-                                    cursor: 'pointer',
-                                    transition: 'all 0.2s'
+                                    cursor: 'pointer', transition: 'all 0.2s'
                                 }}
                             >
                                 {tab.label}
@@ -171,7 +199,6 @@ export default function Dashboard() {
                     {/* Agent Status Tab */}
                     {activeTab === 'agents' && (
                         <div style={{ flex: 1, overflowY: 'auto', padding: '16px', background: '#F8F7F4', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', alignContent: 'start' }}>
-
                             {agents.filter(a => a.id !== 'ceo').map(agent => {
                                 const cfg = getStatusConfig(agent.status)
                                 return (
@@ -202,7 +229,6 @@ export default function Dashboard() {
                                     </div>
                                 )
                             })}
-
                             {agents.filter(a => a.id === 'ceo').map(agent => {
                                 const cfg = getStatusConfig(agent.status)
                                 return (
@@ -228,7 +254,6 @@ export default function Dashboard() {
                                 <h2 style={{ fontSize: '16px', fontWeight: '600', color: '#1a1a18', margin: '0 0 4px' }}>Ask Dana Williams</h2>
                                 <p style={{ fontSize: '12px', color: '#888780', margin: 0 }}>CEO Agent — always-on, aware of all departments</p>
                             </div>
-
                             {chatResponse ? (
                                 <div style={{ background: '#EFF6FF', border: '1px solid #BFDBFE', borderRadius: '12px', padding: '16px' }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
@@ -256,7 +281,6 @@ export default function Dashboard() {
                                     ))}
                                 </div>
                             )}
-
                             <div style={{ display: 'flex', gap: '8px', marginTop: 'auto' }}>
                                 <input
                                     type="text"
@@ -282,8 +306,8 @@ export default function Dashboard() {
                 <div style={{ borderLeft: '1px solid #E8E5DE', display: 'flex', flexDirection: 'column', background: '#ffffff', overflow: 'hidden' }}>
 
                     {/* A2A feed */}
-                    <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-                        <div style={{ padding: '12px 16px', borderBottom: '1px solid #E8E5DE' }}>
+                    <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column', minHeight: 0 }}>
+                        <div style={{ padding: '12px 16px', borderBottom: '1px solid #E8E5DE', flexShrink: 0 }}>
                             <span style={{ fontSize: '11px', fontWeight: '600', color: '#888780', textTransform: 'uppercase', letterSpacing: '0.05em' }}>A2A Message Feed</span>
                         </div>
                         <div style={{ flex: 1, overflowY: 'auto', padding: '8px 0' }}>
@@ -306,13 +330,57 @@ export default function Dashboard() {
                         </div>
                     </div>
 
+                    {/* Agent Actions */}
+                    <div style={{ borderTop: '1px solid #E8E5DE', padding: '12px 16px', flexShrink: 0 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '10px' }}>
+                            <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#E24B4A' }} />
+                            <span style={{ fontSize: '11px', fontWeight: '600', color: '#888780', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Agent Actions</span>
+                            {pendingActions.length > 0 && (
+                                <span style={{ marginLeft: 'auto', fontSize: '10px', background: '#FEE2E2', color: '#991B1B', padding: '2px 6px', borderRadius: '10px', fontWeight: '500' }}>
+                                    {pendingActions.length} pending
+                                </span>
+                            )}
+                        </div>
+                        <div style={{ maxHeight: '200px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                            {pendingActions.length === 0 ? (
+                                <p style={{ fontSize: '12px', color: '#888780', margin: 0 }}>Actions appear after crisis is triggered...</p>
+                            ) : pendingActions.map(action => (
+                                <div key={action.id} style={{ background: '#F8F7F4', border: '1px solid #E8E5DE', borderRadius: '10px', padding: '10px' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
+                                        <span style={{ fontSize: '10px', fontWeight: '600', color: '#639922' }}>{action.agent_name}</span>
+                                        <span style={{ fontSize: '10px', background: '#EAF3DE', color: '#3B6D11', padding: '1px 6px', borderRadius: '4px' }}>{action.action_type}</span>
+                                        {action.priority === 'critical' && (
+                                            <span style={{ fontSize: '10px', background: '#FEE2E2', color: '#991B1B', padding: '1px 6px', borderRadius: '4px', marginLeft: 'auto' }}>critical</span>
+                                        )}
+                                    </div>
+                                    <p style={{ fontSize: '12px', fontWeight: '500', color: '#1a1a18', margin: '0 0 4px' }}>{action.title}</p>
+                                    <p style={{ fontSize: '11px', color: '#888780', margin: '0 0 8px', lineHeight: '1.5' }}>{action.content}</p>
+                                    <div style={{ display: 'flex', gap: '6px' }}>
+                                        <button
+                                            onClick={() => handleAction(action.id, 'approve')}
+                                            style={{ flex: 1, background: '#1a1a18', color: '#fff', border: 'none', borderRadius: '6px', padding: '8px', fontSize: '11px', fontWeight: '500', cursor: 'pointer' }}
+                                        >
+                                            ✓ Authorise — CEO will execute
+                                        </button>
+                                        <button
+                                            onClick={() => handleAction(action.id, 'dismiss')}
+                                            style={{ background: '#F1F5F9', color: '#888780', border: 'none', borderRadius: '6px', padding: '6px 10px', fontSize: '11px', cursor: 'pointer' }}
+                                        >
+                                            ✕
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
                     {/* CEO Brief */}
-                    <div style={{ borderTop: '1px solid #E8E5DE', padding: '16px' }}>
+                    <div style={{ borderTop: '1px solid #E8E5DE', padding: '16px', flexShrink: 0 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '10px' }}>
                             <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#639922' }} />
                             <span style={{ fontSize: '11px', fontWeight: '600', color: '#888780', textTransform: 'uppercase', letterSpacing: '0.05em' }}>CEO War Room Brief</span>
                         </div>
-                        <div style={{ background: '#F8F7F4', borderRadius: '8px', padding: '12px', marginBottom: '12px', minHeight: '60px' }}>
+                        <div style={{ background: '#F8F7F4', borderRadius: '8px', padding: '12px', minHeight: '60px' }}>
                             {brief
                                 ? <p style={{ fontSize: '12px', color: '#1a1a18', lineHeight: '1.7', margin: 0 }}>{brief}</p>
                                 : <p style={{ fontSize: '12px', color: '#888780', margin: 0 }}>Brief appears after crisis is triggered...</p>

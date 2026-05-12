@@ -3,7 +3,7 @@ from dataclasses import dataclass, field
 from typing import Optional, Literal, List
 from datetime import datetime
 
-AgentStatus = Literal["idle", "thinking", "sending", "alert"]
+AgentStatus = Literal["idle", "thinking", "sending", "alert", "completed"]
 AgentID = Literal["sales", "finance", "marketing", "support", "ops", "ceo"]
 
 @dataclass

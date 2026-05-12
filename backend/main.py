@@ -7,6 +7,7 @@ from routes.websocket import router as ws_router
 from routes.chat import router as chat_router
 from routes.toggle import router as toggle_router
 from routes.onboard import router as onboard_router
+from routes.actions import router as actions_router
 
 app = FastAPI(
     title="OpsHive API",
@@ -44,6 +45,7 @@ app.include_router(ws_router)
 app.include_router(chat_router, prefix="/ceo")
 app.include_router(toggle_router, prefix="/agents")
 app.include_router(onboard_router, prefix="/company")
+app.include_router(actions_router, prefix="/agent")
 
 @app.get("/health")
 async def health():

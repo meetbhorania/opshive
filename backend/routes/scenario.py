@@ -34,6 +34,7 @@ async def run_crisis_sequence(scenario: dict):
         "ops": ("sending", "Two engineers double-booked on deadline", "Reassign Dev B to gateway refactor"),
     }
 
+    # Phase 1 — detection
     steps = ["finance", "support", "marketing", "sales", "ops"]
     for agent_id in steps:
         await asyncio.sleep(0.8)
@@ -47,18 +48,19 @@ async def run_crisis_sequence(scenario: dict):
             if sending_to:
                 agents[agent_id].state.sending_to = sending_to
 
+    # Phase 2 — A2A coordination
     await asyncio.sleep(1.0)
     all_states = [a.state for a in agents.values() if a.state.id != "ceo"]
     await coordinator.coordinate(all_states)
     await asyncio.sleep(1.0)
 
+    # Phase 3 — CEO generates brief and detects suspicious item
     try:
         brief = await agents["ceo"].generate_brief([a.state.to_dict() for a in agents.values()])
     except Exception:
-        brief = "Attention. Three critical issues require immediate action. Finance reports 47,000 GBP in overdue invoices threatening cash flow. Support tickets have spiked 340% due to API timeouts on checkout. Our top sales prospect has gone cold for six days while RivalCo just cut prices by 15%. Recommended priority: chase invoices today, escalate API fix to engineering, and call Barclays Enterprise immediately."
+        brief = "Attention. Three critical issues require immediate action. Finance reports 47,000 GBP in overdue invoices threatening cash flow. Support tickets have spiked 340% due to API timeouts. Top sales prospect cold for six days. Recommended priority: chase invoices today, escalate API fix, call top prospect immediately."
 
     mcp_context.set("latest_brief", brief)
-
     history = mcp_context.get("brief_history") or []
     history.insert(0, {
         "brief": brief,
@@ -67,4 +69,48 @@ async def run_crisis_sequence(scenario: dict):
     })
     mcp_context.set("brief_history", history[:5])
 
-    agents["ceo"].set_status("alert", "War room brief delivered", alert=brief[:100])
+    # Phase 4 — auto resolve low priority agents
+    await asyncio.sleep(1.5)
+    low_priority = ["marketing", "ops", "sales"]
+    for agent_id in low_priority:
+        await asyncio.sleep(0.8)
+        agents[agent_id].set_status(
+            "completed",
+            f"Issue resolved autonomously",
+            alert=None,
+            sending_to=None
+        )
+        await a2a_bus.send_message(
+            from_agent=agent_id,
+            to_agent="ceo",
+            message=f"{agents[agent_id].state.name} has resolved their issue autonomously.",
+            priority="low"
+        )
+
+    # Phase 5 — CEO flags suspicious high-priority item for founder
+    await asyncio.sleep(1.0)
+    company = scenario.get("company", "your company")
+    suspicious_item = {
+        "id": "ceo_flag_001",
+        "agent_id": "ceo",
+        "agent_name": "Dana Williams — CEO",
+        "action_type": "approval",
+        "title": "CEO flagged: Cash flow risk requires founder decision",
+        "content": f"Finance exposure of 47,000 GBP combined with 4-month runway is critical for {company}. I recommend immediately contacting all overdue clients personally. This decision requires your authorisation as it impacts client relationships.",
+        "priority": "critical",
+        "status": "pending",
+        "ceo_recommendation": True
+    }
+
+    # Store the suspicious item
+    from routes.actions import generated_actions
+    generated_actions.clear()
+    generated_actions.append(suspicious_item)
+
+    agents["ceo"].set_status(
+        "alert",
+        "Suspicious risk detected — awaiting founder approval",
+        alert="Cash flow risk flagged — founder decision required"
+    )
+
+    mcp_context.set("latest_brief", brief)
