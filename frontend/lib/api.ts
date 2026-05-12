@@ -1,4 +1,5 @@
-const BASE = 'http://localhost:8000'
+//const BASE = 'http://localhost:8000'
+const BASE = 'http://127.0.0.1:8000'
 
 export async function fetchAgentStatus() {
   const res = await fetch(`${BASE}/agents/status`)
@@ -26,7 +27,7 @@ export function createA2AFeedSocket(onMessage: (msg: any) => void): WebSocket {
     try {
       const data = JSON.parse(event.data)
       if (!data.ping) onMessage(data)
-    } catch {}
+    } catch { }
   }
   return ws
 }
