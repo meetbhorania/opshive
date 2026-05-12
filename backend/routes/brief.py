@@ -9,3 +9,8 @@ async def get_latest_brief():
     if not brief:
         return {"brief": None, "ready": False}
     return {"brief": brief, "ready": True}
+
+@router.get("/history")
+async def get_brief_history():
+    history = mcp_context.get("brief_history") or []
+    return {"history": history, "count": len(history)}

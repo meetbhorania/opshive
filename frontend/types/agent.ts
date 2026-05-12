@@ -2,6 +2,12 @@ export type AgentID = 'sales' | 'finance' | 'marketing' | 'support' | 'ops' | 'c
 export type AgentStatus = 'idle' | 'thinking' | 'sending' | 'alert'
 export type MessagePriority = 'low' | 'medium' | 'high' | 'critical'
 
+export interface ActivityLog {
+  action: string
+  status: string
+  timestamp: string
+}
+
 export interface AgentState {
   id: AgentID
   name: string
@@ -12,6 +18,7 @@ export interface AgentState {
   alertMessage?: string
   priorityScore: number
   lastUpdated: string
+  activityLog: ActivityLog[]
 }
 
 export interface A2AMessage {

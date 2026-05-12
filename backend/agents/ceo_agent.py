@@ -9,7 +9,7 @@ genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 class CEOAgent(BaseAgent):
     def __init__(self):
         super().__init__("ceo", "Dana Williams", "CEO — Always-On Supervisor")
-        self.model = genai.GenerativeModel("gemini-2.0-flash")
+        self.model = genai.GenerativeModel("gemini-2.5-flash")
         self.watched_alerts = []
 
     def receive_alert(self, agent_id: str, message: str, priority: int):
