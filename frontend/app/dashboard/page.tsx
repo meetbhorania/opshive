@@ -3,6 +3,8 @@ import { useState, useEffect } from 'react'
 import { useAgentState } from '@/hooks/useAgentState'
 import { useA2AFeed } from '@/hooks/useA2AFeed'
 import { triggerCrisis, resetScenario, fetchLatestBrief } from '@/lib/api'
+import dynamic from 'next/dynamic'
+const OfficeScene = dynamic(() => import('@/components/office/OfficeScene'), { ssr: false })
 
 export default function Dashboard() {
     const agents = useAgentState()
@@ -180,13 +182,13 @@ export default function Dashboard() {
 
                     {/* Office View Tab */}
                     {activeTab === 'office' && (
-                        <div style={{ flex: 1, background: '#1a1a18', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <p style={{ color: '#444441', fontSize: '13px' }}>Visual office — teammate building</p>
+                        <div style={{ flex: 1, position: 'relative', minHeight: '400px' }}>
+                            <OfficeScene />
                             <div style={{ position: 'absolute', bottom: '12px', left: '12px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                                 {agents.map(agent => {
                                     const cfg = getStatusConfig(agent.status)
                                     return (
-                                        <div key={agent.id} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'rgba(255,255,255,0.1)', borderRadius: '20px', padding: '4px 10px' }}>
+                                        <div key={agent.id} style={{ display: 'flex', alignItems: 'center', gap: '6px', background: 'rgba(0,0,0,0.6)', borderRadius: '20px', padding: '4px 10px' }}>
                                             <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: cfg.dot }} />
                                             <span style={{ fontSize: '11px', color: '#ffffff' }}>{agent.name.split(' ')[0]}</span>
                                         </div>
