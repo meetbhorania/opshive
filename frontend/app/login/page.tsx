@@ -52,7 +52,7 @@ export default function LoginPage() {
 
     // Call backend to generate company scenario
     try {
-      await fetch('http://127.0.0.1:8000/company/onboard', {
+      await fetch('https://opshive-production.up.railway.app/company/onboard', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

@@ -567,7 +567,7 @@ export default function OfficeScene() {
   useEffect(() => {
     const poll = async () => {
       try {
-        const res = await fetch('http://127.0.0.1:8000/agents/status')
+        const res = await fetch('https://opshive-production.up.railway.app/agents/status')
         const data = await res.json()
         setAgents(data.agents || [])
       } catch { }
