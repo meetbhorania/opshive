@@ -1,5 +1,5 @@
 //const BASE = 'http://localhost:8000'
-const BASE = 'http://127.0.0.1:8000'
+const BASE = 'https://opshive-production.up.railway.app'
 
 export async function fetchAgentStatus() {
   const res = await fetch(`${BASE}/agents/status`)

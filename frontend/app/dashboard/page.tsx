@@ -46,7 +46,7 @@ export default function Dashboard() {
     useEffect(() => {
         const pollActions = async () => {
             try {
-                const res = await fetch('http://127.0.0.1:8000/agent/actions')
+                const res = await fetch('https://opshive-production.up.railway.app/agent/actions')
                 const data = await res.json()
                 setActions(data.actions || [])
             } catch { }
@@ -72,7 +72,7 @@ export default function Dashboard() {
         if (!chatInput.trim()) return
         setChatLoading(true)
         try {
-            const res = await fetch('http://127.0.0.1:8000/ceo/chat', {
+            const res = await fetch('https://opshive-production.up.railway.app/ceo/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ message: chatInput })
@@ -88,7 +88,7 @@ export default function Dashboard() {
 
     const handleAction = async (actionId: string, decision: 'approve' | 'dismiss') => {
         try {
-            await fetch(`http://127.0.0.1:8000/agent/actions/${decision}`, {
+            await fetch(`https://opshive-production.up.railway.app/agent/actions/${decision}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ action_id: actionId })

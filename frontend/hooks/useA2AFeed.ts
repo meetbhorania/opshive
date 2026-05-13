@@ -6,7 +6,7 @@ export function useA2AFeed() {
   const [messages, setMessages] = useState<A2AMessage[]>([])
 
   useEffect(() => {
-    const ws = new WebSocket('ws://127.0.0.1:8000/ws/feed')
+    const ws = new WebSocket('wss://opshive-production.up.railway.app/ws/feed')
 
     ws.onmessage = (event) => {
       try {
