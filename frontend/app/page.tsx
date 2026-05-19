@@ -3,7 +3,8 @@ import { useRef, useState, useEffect } from 'react'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import Link from 'next/link'
 
-const ROTATING_WORDS = ['autonomous AI team', 'six AI agents', 'operations centre', 'founding team']
+//const ROTATING_WORDS = ['autonomous AI team', 'six AI agents', 'operations centre', 'founding team']
+const ROTATING_WORDS = ['AI ops team', 'six AI agents', 'war room', 'founding team']
 
 function RotatingHeadline() {
     const [index, setIndex] = useState(0)
@@ -43,9 +44,7 @@ function RotatingHeadline() {
     )
 }
 
-function SpotlightCard({
-    children, delay = 0, accent = '#639922', style,
-}: {
+function SpotlightCard({ children, delay = 0, accent = '#639922', style }: {
     children: React.ReactNode
     delay?: number
     accent?: string
@@ -181,6 +180,150 @@ function PricingCard({ plan, delay }: { plan: any, delay: number }) {
     )
 }
 
+function WaitlistForm() {
+    const [email, setEmail] = useState('')
+    const [company, setCompany] = useState('')
+    const [building, setBuilding] = useState('')
+    const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
+
+    const handleSubmit = async () => {
+        if (!email || !company) return
+        setStatus('loading')
+        try {
+            await fetch('https://script.google.com/macros/s/AKfycbzLCz4ZdlJQTMaYnpz94c6zQCe9bMg7WjbBmG-r1ocvbW6LrhtsscTaGHI2e4F5w6oI/exec', {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, company, building })
+            })
+            setStatus('success')
+            setEmail('')
+            setCompany('')
+            setBuilding('')
+        } catch {
+            setStatus('error')
+        }
+    }
+
+    if (status === 'success') {
+        return (
+            <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5 }}
+                style={{
+                    background: 'rgba(99,153,34,0.1)',
+                    border: '1px solid rgba(99,153,34,0.3)',
+                    borderRadius: '20px', padding: '48px 32px',
+                    textAlign: 'center'
+                }}
+            >
+                <div style={{ fontSize: '48px', marginBottom: '16px' }}>🎉</div>
+                <h3 style={{ fontSize: '24px', fontWeight: '700', color: '#fff', margin: '0 0 12px' }}>
+                    You are on the list.
+                </h3>
+                <p style={{ fontSize: '15px', color: 'rgba(255,255,255,0.5)', margin: 0 }}>
+                    We will be in touch soon with your early access details.
+                </p>
+            </motion.div>
+        )
+    }
+
+    const inputStyle: React.CSSProperties = {
+        width: '100%',
+        background: 'rgba(255,255,255,0.05)',
+        border: '1px solid rgba(255,255,255,0.1)',
+        borderRadius: '12px',
+        padding: '14px 18px',
+        fontSize: '15px',
+        color: '#fff',
+        outline: 'none',
+        transition: 'border-color 0.2s',
+        boxSizing: 'border-box'
+    }
+
+    return (
+        <div style={{
+            background: '#0a0d16',
+            border: '1px solid rgba(255,255,255,0.08)',
+            borderRadius: '24px',
+            padding: '40px 32px',
+            textAlign: 'left'
+        }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div>
+                    <label style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', letterSpacing: '0.1em', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>
+                        Email address *
+                    </label>
+                    <input
+                        type="email"
+                        placeholder="you@company.com"
+                        value={email}
+                        onChange={e => setEmail(e.target.value)}
+                        style={inputStyle}
+                        onFocus={e => e.currentTarget.style.borderColor = 'rgba(99,153,34,0.5)'}
+                        onBlur={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'}
+                    />
+                </div>
+                <div>
+                    <label style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', letterSpacing: '0.1em', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>
+                        Company name *
+                    </label>
+                    <input
+                        type="text"
+                        placeholder="Your company"
+                        value={company}
+                        onChange={e => setCompany(e.target.value)}
+                        style={inputStyle}
+                        onFocus={e => e.currentTarget.style.borderColor = 'rgba(99,153,34,0.5)'}
+                        onBlur={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'}
+                    />
+                </div>
+                <div>
+                    <label style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', letterSpacing: '0.1em', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>
+                        What are you building?{' '}
+                        <span style={{ color: 'rgba(255,255,255,0.2)' }}>(optional)</span>
+                    </label>
+                    <input
+                        type="text"
+                        placeholder="e.g. B2B SaaS for logistics companies"
+                        value={building}
+                        onChange={e => setBuilding(e.target.value)}
+                        style={inputStyle}
+                        onFocus={e => e.currentTarget.style.borderColor = 'rgba(99,153,34,0.5)'}
+                        onBlur={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'}
+                    />
+                </div>
+                <motion.button
+                    onClick={handleSubmit}
+                    disabled={status === 'loading' || !email || !company}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    style={{
+                        width: '100%',
+                        background: email && company ? '#639922' : 'rgba(99,153,34,0.3)',
+                        color: '#fff', border: 'none',
+                        borderRadius: '12px', padding: '16px',
+                        fontSize: '15px', fontWeight: '700',
+                        cursor: email && company ? 'pointer' : 'not-allowed',
+                        transition: 'background 0.2s', marginTop: '8px'
+                    }}
+                >
+                    {status === 'loading' ? 'Joining...' : 'Join the waitlist — get 3 months free →'}
+                </motion.button>
+                {status === 'error' && (
+                    <p style={{ fontSize: '13px', color: '#E24B4A', textAlign: 'center', margin: 0 }}>
+                        Something went wrong. Please try again.
+                    </p>
+                )}
+                <p style={{ fontSize: '12px', color: 'rgba(255,255,255,0.2)', textAlign: 'center', margin: 0 }}>
+                    No spam. No credit card. Early access only.
+                </p>
+            </div>
+        </div>
+    )
+}
+
 function CityBackground() {
     return (
         <div style={{ position: 'absolute', inset: 0, overflow: 'hidden' }}>
@@ -258,8 +401,7 @@ export default function LandingPage() {
     const heroOpacity = useTransform(heroScroll, [0, 0.75], [1, 0])
     const heroScale = useTransform(heroScroll, [0, 1], [1, 1.06])
 
-    const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
-        e.preventDefault()
+    const scrollTo = (id: string) => {
         const el = document.getElementById(id)
         if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
     }
@@ -276,7 +418,7 @@ export default function LandingPage() {
             <style>{`html { scroll-behavior: smooth; } * { box-sizing: border-box; }`}</style>
 
             {/* NAV */}
-            <motion.nav
+            <motion.div
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6 }}
@@ -289,26 +431,30 @@ export default function LandingPage() {
                     borderBottom: '1px solid rgba(255,255,255,0.06)'
                 }}
             >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <a href="#" onClick={(e: React.MouseEvent<HTMLAnchorElement>) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
+                    style={{ display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none', cursor: 'pointer' }}
+                >
                     <div style={{ display: 'flex', gap: '4px' }}>
                         {[0, 1, 2].map(i => (
                             <div key={i} style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#639922', opacity: 1 - i * 0.25 }} />
                         ))}
                     </div>
-                    <span style={{ fontSize: '20px', fontWeight: '700', letterSpacing: '-0.5px' }}>
+                    <span style={{ fontSize: '20px', fontWeight: '700', letterSpacing: '-0.5px', color: '#fff' }}>
                         Ops<span style={{ color: '#639922' }}>Hive</span>
                     </span>
-                </div>
+                </a>
+
                 <div style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
-                    {[['How it works', 'how-it-works'], ['Features', 'features'], ['Pricing', 'pricing']].map(([label, id]) => (
+                    {[['How it works', 'how-it-works'], ['Features', 'features'], ['Pricing', 'pricing'], ['Waitlist', 'waitlist']].map(([label, id]) => (
                         <a key={label} href={`#${id}`}
-                            onClick={e => handleNavClick(e as React.MouseEvent<HTMLAnchorElement>, id)}
+                            onClick={(e: React.MouseEvent<HTMLAnchorElement>) => { e.preventDefault(); scrollTo(id) }}
                             style={{ fontSize: '14px', color: 'rgba(255,255,255,0.55)', textDecoration: 'none', transition: 'color 0.2s', cursor: 'pointer' }}
                             onMouseEnter={e => (e.currentTarget.style.color = '#fff')}
                             onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.55)')}
                         >{label}</a>
                     ))}
                 </div>
+
                 <Link href="/login" style={{
                     background: '#639922', color: '#fff',
                     padding: '10px 22px', borderRadius: '8px',
@@ -320,9 +466,9 @@ export default function LandingPage() {
                 >
                     Launch OpsHive
                 </Link>
-            </motion.nav>
+            </motion.div>
 
-            {/* HERO */}
+            {/* HERO — parallax only affects content inside this section */}
             <section
                 ref={heroRef}
                 style={{
@@ -337,6 +483,7 @@ export default function LandingPage() {
                     <CityBackground />
                 </motion.div>
 
+                {/* heroOpacity ONLY wraps hero text — nothing else */}
                 <motion.div style={{ opacity: heroOpacity, position: 'relative', zIndex: 10, maxWidth: '820px' }}>
                     <motion.div
                         initial={{ opacity: 0, y: 10 }}
@@ -355,11 +502,7 @@ export default function LandingPage() {
                         </span>
                     </motion.div>
 
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.6, delay: 0.4 }}
-                    >
+                    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.4 }}>
                         <RotatingHeadline />
                     </motion.div>
 
@@ -367,10 +510,7 @@ export default function LandingPage() {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6, delay: 0.8 }}
-                        style={{
-                            fontSize: '18px', color: 'rgba(255,255,255,0.45)',
-                            lineHeight: '1.7', margin: '0 auto 48px', maxWidth: '540px'
-                        }}
+                        style={{ fontSize: '18px', color: 'rgba(255,255,255,0.45)', lineHeight: '1.7', margin: '0 auto 48px', maxWidth: '540px' }}
                     >
                         Describe your company. Six AI agents wake up, monitor everything,
                         and act — so you can focus on what actually matters.
@@ -394,17 +534,14 @@ export default function LandingPage() {
                             Launch OpsHive →
                         </Link>
                         <a href="#how-it-works"
-                            onClick={e => handleNavClick(e as React.MouseEvent<HTMLAnchorElement>, 'how-it-works')}
+                            onClick={(e: React.MouseEvent<HTMLAnchorElement>) => { e.preventDefault(); scrollTo('how-it-works') }}
                             style={{
-                                background: 'rgba(255,255,255,0.05)',
-                                border: '1px solid rgba(255,255,255,0.1)',
-                                color: 'rgba(255,255,255,0.75)',
-                                padding: '15px 32px', borderRadius: '10px',
-                                fontSize: '15px', fontWeight: '500',
-                                textDecoration: 'none', transition: 'all 0.2s', cursor: 'pointer'
+                                background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
+                                color: 'rgba(255,255,255,0.75)', padding: '15px 32px', borderRadius: '10px',
+                                fontSize: '15px', fontWeight: '500', textDecoration: 'none', transition: 'all 0.2s', cursor: 'pointer'
                             }}
-                            onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.09)'}
-                            onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+                            onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.09)')}
+                            onMouseLeave={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.05)')}
                         >
                             See how it works ↓
                         </a>
@@ -414,11 +551,7 @@ export default function LandingPage() {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ duration: 0.6, delay: 1.4 }}
-                        style={{
-                            marginTop: '64px',
-                            display: 'flex', alignItems: 'center',
-                            justifyContent: 'center', gap: '20px', flexWrap: 'wrap'
-                        }}
+                        style={{ marginTop: '64px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '20px', flexWrap: 'wrap' }}
                     >
                         <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.2)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>Powered by</span>
                         {['Google ADK', 'Gemini AI', 'Vertex AI', 'MCP + A2A'].map(tech => (
@@ -430,7 +563,9 @@ export default function LandingPage() {
                         ))}
                     </motion.div>
                 </motion.div>
+                {/* END of heroOpacity wrapper */}
             </section>
+            {/* END of hero section — everything below is completely static */}
 
             {/* HOW IT WORKS */}
             <section id="how-it-works" style={{ background: '#07090f', padding: '120px 24px', position: 'relative' }}>
@@ -441,21 +576,16 @@ export default function LandingPage() {
                 }} />
                 <div style={{ maxWidth: '1050px', margin: '0 auto' }}>
                     <motion.div
-                        initial={{ opacity: 0, x: -40 }}
-                        whileInView={{ opacity: 1, x: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
+                        initial={{ opacity: 0, x: -40 }} whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true }} transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
                         style={{ textAlign: 'center', marginBottom: '72px' }}
                     >
-                        <span style={{ fontSize: '11px', color: '#639922', letterSpacing: '0.15em', textTransform: 'uppercase', fontWeight: '600' }}>
-                            How it works
-                        </span>
+                        <span style={{ fontSize: '11px', color: '#639922', letterSpacing: '0.15em', textTransform: 'uppercase', fontWeight: '600' }}>How it works</span>
                         <h2 style={{ fontSize: 'clamp(32px, 5vw, 54px)', fontWeight: '700', letterSpacing: '-1.5px', color: '#fff', margin: '12px 0 0', lineHeight: '1.1' }}>
                             From idea to running ops<br />
                             <span style={{ color: 'rgba(255,255,255,0.3)' }}>in under 60 seconds.</span>
                         </h2>
                     </motion.div>
-
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '12px' }}>
                         {[
                             { number: '01', accent: '#639922', title: 'You type. Agents listen.', stat: '< 60s', statLabel: 'to full setup', body: "Tell us your company name, industry and what you're building. No forms. No complexity. Just describe it like you would to a colleague." },
@@ -480,12 +610,9 @@ export default function LandingPage() {
                             </SpotlightCard>
                         ))}
                     </div>
-
                     <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.6, delay: 0.4 }}
+                        initial={{ opacity: 0, y: 10 }} whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }} transition={{ duration: 0.6, delay: 0.4 }}
                         style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginTop: '48px', flexWrap: 'wrap' }}
                     >
                         {['Sales · Alex', 'Finance · Morgan', 'Marketing · Jamie', 'Support · Riley', 'Ops · Sam', 'CEO · Dana'].map((agent, i) => (
@@ -507,19 +634,15 @@ export default function LandingPage() {
                 }} />
                 <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
                     <motion.div
-                        initial={{ opacity: 0, x: -40 }}
-                        whileInView={{ opacity: 1, x: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
+                        initial={{ opacity: 0, x: -40 }} whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true }} transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
                         style={{ textAlign: 'center', marginBottom: '72px' }}
                     >
                         <span style={{ fontSize: '11px', color: '#378ADD', letterSpacing: '0.15em', textTransform: 'uppercase', fontWeight: '600' }}>Features</span>
                         <h2 style={{ fontSize: 'clamp(32px, 5vw, 54px)', fontWeight: '700', letterSpacing: '-1.5px', color: '#fff', margin: '12px 0 0', lineHeight: '1.1' }}>
-                            Built different.<br />
-                            <span style={{ color: 'rgba(255,255,255,0.3)' }}>Not just another chatbot.</span>
+                            Built different.<br /><span style={{ color: 'rgba(255,255,255,0.3)' }}>Not just another chatbot.</span>
                         </h2>
                     </motion.div>
-
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
                         <SpotlightCard delay={0} accent="#639922" style={{ gridColumn: 'span 2' }}>
                             <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '24px' }}>
@@ -531,31 +654,25 @@ export default function LandingPage() {
                             <h3 style={{ fontSize: '24px', fontWeight: '700', color: '#fff', margin: '0 0 12px', letterSpacing: '-0.5px' }}>Not one AI trying to do everything.</h3>
                             <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.4)', lineHeight: '1.75', margin: 0 }}>Six domain experts — each trained to reason about their specific area. Sales knows pipeline. Finance knows cash flow. Support knows tickets. They don't overlap. They collaborate.</p>
                         </SpotlightCard>
-
                         <SpotlightCard delay={0.1} accent="#378ADD">
                             <span style={{ fontSize: '10px', color: '#378ADD', letterSpacing: '0.12em', textTransform: 'uppercase', fontWeight: '600' }}>A2A Protocol</span>
                             <div style={{ fontSize: '48px', fontWeight: '700', color: '#378ADD', letterSpacing: '-2px', lineHeight: '1', margin: '16px 0 4px' }}>↗</div>
                             <h3 style={{ fontSize: '18px', fontWeight: '700', color: '#fff', margin: '0 0 10px', letterSpacing: '-0.4px' }}>Agents talk to each other.</h3>
                             <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.4)', lineHeight: '1.7', margin: 0 }}>When Marketing spots a competitor price cut, it messages Sales directly. Real agent-to-agent communication. No human relay.</p>
                         </SpotlightCard>
-
                         <SpotlightCard delay={0.2} accent="#EF9F27">
                             <span style={{ fontSize: '10px', color: '#EF9F27', letterSpacing: '0.12em', textTransform: 'uppercase', fontWeight: '600' }}>CEO Agent</span>
                             <div style={{ fontSize: '48px', fontWeight: '700', color: '#EF9F27', letterSpacing: '-2px', lineHeight: '1', margin: '16px 0 4px' }}>◎</div>
                             <h3 style={{ fontSize: '18px', fontWeight: '700', color: '#fff', margin: '0 0 10px', letterSpacing: '-0.4px' }}>One brain synthesising everything.</h3>
                             <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.4)', lineHeight: '1.7', margin: 0 }}>Dana Williams reads every signal from every agent and delivers a 60-second war room brief. Every. Single. Time.</p>
                         </SpotlightCard>
-
                         <SpotlightCard delay={0.3} accent="#E24B4A" style={{ gridColumn: 'span 2' }}>
-                            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '24px' }}>
-                                <span style={{ fontSize: '10px', color: '#E24B4A', letterSpacing: '0.12em', textTransform: 'uppercase', fontWeight: '600' }}>Autonomous Actions</span>
-                            </div>
-                            <div style={{ fontSize: '56px', fontWeight: '700', color: '#E24B4A', letterSpacing: '-2px', lineHeight: '1', marginBottom: '8px' }}>1</div>
+                            <span style={{ fontSize: '10px', color: '#E24B4A', letterSpacing: '0.12em', textTransform: 'uppercase', fontWeight: '600' }}>Autonomous Actions</span>
+                            <div style={{ fontSize: '56px', fontWeight: '700', color: '#E24B4A', letterSpacing: '-2px', lineHeight: '1', margin: '16px 0 8px' }}>1</div>
                             <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.3)', marginBottom: '20px' }}>decision from you</div>
                             <h3 style={{ fontSize: '22px', fontWeight: '700', color: '#fff', margin: '0 0 12px', letterSpacing: '-0.5px' }}>They act. You approve one thing.</h3>
                             <p style={{ fontSize: '14px', color: 'rgba(255,255,255,0.4)', lineHeight: '1.75', margin: 0 }}>Agents don't just raise flags. They draft emails, escalate to engineering, update pipelines. When the CEO flags something suspicious — that's the one moment you step in.</p>
                         </SpotlightCard>
-
                         <SpotlightCard delay={0.4} accent="#22C55E">
                             <span style={{ fontSize: '10px', color: '#22C55E', letterSpacing: '0.12em', textTransform: 'uppercase', fontWeight: '600' }}>Personalised</span>
                             <div style={{ fontSize: '48px', fontWeight: '700', color: '#22C55E', letterSpacing: '-2px', lineHeight: '1', margin: '16px 0 4px' }}>◈</div>
@@ -563,7 +680,6 @@ export default function LandingPage() {
                             <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.4)', lineHeight: '1.7', margin: 0 }}>Describe what you're building. Agents configure around your industry, team size and goals.</p>
                         </SpotlightCard>
                     </div>
-
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', marginTop: '12px' }}>
                         {[
                             { n: '6', label: 'Specialised agents', color: '#639922' },
@@ -572,10 +688,8 @@ export default function LandingPage() {
                             { n: '1', label: 'Decision from you', color: '#E24B4A' },
                         ].map((s, i) => (
                             <motion.div key={i}
-                                initial={{ opacity: 0, y: 20 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true }}
-                                transition={{ duration: 0.5, delay: 0.5 + i * 0.1 }}
+                                initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }} transition={{ duration: 0.5, delay: 0.5 + i * 0.1 }}
                                 style={{ background: '#0a0d16', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '14px', padding: '24px', textAlign: 'center' }}
                             >
                                 <div style={{ fontSize: '34px', fontWeight: '700', color: s.color, letterSpacing: '-1px', marginBottom: '6px' }}>{s.n}</div>
@@ -595,16 +709,13 @@ export default function LandingPage() {
                 }} />
                 <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
                     <motion.div
-                        initial={{ opacity: 0, x: -40 }}
-                        whileInView={{ opacity: 1, x: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
+                        initial={{ opacity: 0, x: -40 }} whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true }} transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
                         style={{ textAlign: 'center', marginBottom: '72px' }}
                     >
                         <span style={{ fontSize: '11px', color: '#639922', letterSpacing: '0.15em', textTransform: 'uppercase', fontWeight: '600' }}>Pricing</span>
                         <h2 style={{ fontSize: 'clamp(32px, 5vw, 54px)', fontWeight: '700', letterSpacing: '-1.5px', color: '#fff', margin: '12px 0 0', lineHeight: '1.1' }}>
-                            Start free.<br />
-                            <span style={{ color: 'rgba(255,255,255,0.3)' }}>Scale when you're ready.</span>
+                            Start free.<br /><span style={{ color: 'rgba(255,255,255,0.3)' }}>Scale when you're ready.</span>
                         </h2>
                     </motion.div>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '12px' }}>
@@ -613,19 +724,44 @@ export default function LandingPage() {
                 </div>
             </section>
 
+            {/* WAITLIST */}
+            <section id="waitlist" style={{ background: '#050810', padding: '120px 24px', position: 'relative' }}>
+                <div style={{
+                    position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)',
+                    width: '500px', height: '1px',
+                    background: 'linear-gradient(90deg, transparent, rgba(99,153,34,0.5), transparent)'
+                }} />
+                <div style={{ maxWidth: '600px', margin: '0 auto', textAlign: 'center' }}>
+                    <div>
+                        <div style={{
+                            display: 'inline-flex', alignItems: 'center', gap: '8px',
+                            background: 'rgba(99,153,34,0.12)', border: '1px solid rgba(99,153,34,0.35)',
+                            borderRadius: '20px', padding: '6px 16px', marginBottom: '24px'
+                        }}>
+                            <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#639922' }} />
+                            <span style={{ fontSize: '12px', color: '#a8d86e', fontWeight: '500', letterSpacing: '0.06em' }}>EARLY ACCESS</span>
+                        </div>
+                        <h2 style={{ fontSize: 'clamp(32px, 5vw, 52px)', fontWeight: '700', letterSpacing: '-1.5px', color: '#fff', margin: '0 0 16px', lineHeight: '1.1' }}>
+                            Be the first to run<br /><span style={{ color: '#639922' }}>an AI ops team.</span>
+                        </h2>
+                        <p style={{ fontSize: '16px', color: 'rgba(255,255,255,0.45)', margin: '0 0 48px', lineHeight: '1.7' }}>
+                            Join founders already on the waitlist. Early access members get 3 months free on the Founder plan.
+                        </p>
+                        <WaitlistForm />
+                    </div>
+                </div>
+            </section>
+
             {/* FINAL CTA */}
-            <section style={{ background: '#050810', padding: '140px 24px', position: 'relative', textAlign: 'center' }}>
+            <section style={{ background: '#07090f', padding: '140px 24px', position: 'relative', textAlign: 'center' }}>
                 <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 50% 50%, rgba(99,153,34,0.06) 0%, transparent 70%)' }} />
                 <div style={{ position: 'relative', zIndex: 10, maxWidth: '700px', margin: '0 auto' }}>
                     <motion.div
-                        initial={{ opacity: 0, y: 30 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
+                        initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }} transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1] }}
                     >
                         <h2 style={{ fontSize: 'clamp(36px, 6vw, 68px)', fontWeight: '700', letterSpacing: '-2px', color: '#fff', margin: '0 0 20px', lineHeight: '1.05' }}>
-                            Your company deserves<br />
-                            <span style={{ color: '#639922' }}>an AI ops team.</span>
+                            Your company deserves<br /><span style={{ color: '#639922' }}>an AI ops team.</span>
                         </h2>
                         <p style={{ fontSize: '17px', color: 'rgba(255,255,255,0.45)', lineHeight: '1.7', margin: '0 auto 48px', maxWidth: '480px' }}>
                             Stop juggling everything alone. Launch OpsHive in 60 seconds and let six AI agents watch your back.
@@ -640,7 +776,7 @@ export default function LandingPage() {
                             onMouseEnter={e => { e.currentTarget.style.background = '#7ab82a'; e.currentTarget.style.transform = 'translateY(-2px)' }}
                             onMouseLeave={e => { e.currentTarget.style.background = '#639922'; e.currentTarget.style.transform = 'translateY(0)' }}
                         >
-                            Launch OpsHive — it's free →
+                            Launch OpsHive — it is free →
                         </Link>
                     </motion.div>
                 </div>
@@ -654,7 +790,6 @@ export default function LandingPage() {
                     color: 'rgba(255,255,255,0.018)', whiteSpace: 'nowrap',
                     letterSpacing: '-6px', userSelect: 'none', pointerEvents: 'none', lineHeight: '1'
                 }}>opshive</div>
-
                 <motion.div
                     animate={{ rotate: 360 }}
                     transition={{ duration: 14, repeat: Infinity, ease: 'linear' }}
@@ -667,18 +802,19 @@ export default function LandingPage() {
                         borderRadius: '50%', filter: 'blur(16px)'
                     }} />
                 </motion.div>
-
                 <div style={{ position: 'relative', zIndex: 10, maxWidth: '1100px', margin: '0 auto' }}>
                     <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '80px', flexWrap: 'wrap', gap: '40px' }}>
                         <div style={{ maxWidth: '260px' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+                            <a href="#" onClick={(e: React.MouseEvent<HTMLAnchorElement>) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }) }}
+                                style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px', textDecoration: 'none' }}
+                            >
                                 <div style={{ display: 'flex', gap: '4px' }}>
                                     {[0, 1, 2].map(i => <div key={i} style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#639922', opacity: 1 - i * 0.25 }} />)}
                                 </div>
                                 <span style={{ fontSize: '20px', fontWeight: '700', color: '#fff', letterSpacing: '-0.5px' }}>
                                     Ops<span style={{ color: '#639922' }}>Hive</span>
                                 </span>
-                            </div>
+                            </a>
                             <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.28)', margin: '0 0 24px', lineHeight: '1.7' }}>
                                 The autonomous AI operations team for anyone building a company.
                             </p>
@@ -687,22 +823,21 @@ export default function LandingPage() {
                                 <div style={{ display: 'flex', gap: '12px' }}>
                                     <a href="https://meetbhorania.com" target="_blank" rel="noopener noreferrer"
                                         style={{ fontSize: '13px', color: 'rgba(255,255,255,0.5)', textDecoration: 'none', fontWeight: '500', transition: 'color 0.2s' }}
-                                        onMouseEnter={e => e.currentTarget.style.color = '#639922'}
-                                        onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.5)'}
+                                        onMouseEnter={e => (e.currentTarget.style.color = '#639922')}
+                                        onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.5)')}
                                     >Meet Bhorania ↗</a>
                                     <span style={{ color: 'rgba(255,255,255,0.15)' }}>·</span>
                                     <a href="https://www.linkedin.com/in/manansuthar/" target="_blank" rel="noopener noreferrer"
                                         style={{ fontSize: '13px', color: 'rgba(255,255,255,0.5)', textDecoration: 'none', fontWeight: '500', transition: 'color 0.2s' }}
-                                        onMouseEnter={e => e.currentTarget.style.color = '#639922'}
-                                        onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.5)'}
+                                        onMouseEnter={e => (e.currentTarget.style.color = '#639922')}
+                                        onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.5)')}
                                     >Manan Suthar ↗</a>
                                 </div>
                             </div>
                         </div>
-
                         <div style={{ display: 'flex', gap: '80px', flexWrap: 'wrap' }}>
                             {[
-                                { title: 'Product', links: [['How it works', '#how-it-works'], ['Features', '#features'], ['Pricing', '#pricing'], ['Launch OpsHive', '/login']] },
+                                { title: 'Product', links: [['How it works', '#how-it-works'], ['Features', '#features'], ['Pricing', '#pricing'], ['Waitlist', '#waitlist'], ['Launch OpsHive', '/login']] },
                                 { title: 'Team', links: [['Meet Bhorania', 'https://meetbhorania.com'], ['LinkedIn — Meet', 'https://www.linkedin.com/in/meetbhorania'], ['Manan Suthar', 'https://www.linkedin.com/in/manansuthar/'], ['LinkedIn — Manan', 'https://www.linkedin.com/in/manansuthar/']] },
                                 { title: 'Event', links: [['GDG London', '#'], ['AI DevCamp 2026', '#'], ['Google ADK', '#'], ['Gemini AI', '#']] }
                             ].map(col => (
@@ -712,17 +847,16 @@ export default function LandingPage() {
                                         <a key={label} href={href}
                                             target={href.startsWith('http') ? '_blank' : undefined}
                                             rel="noopener noreferrer"
-                                            onClick={href.startsWith('#') ? e => handleNavClick(e as React.MouseEvent<HTMLAnchorElement>, href.slice(1)) : undefined}
+                                            onClick={href.startsWith('#') && href.length > 1 ? (e: React.MouseEvent<HTMLAnchorElement>) => { e.preventDefault(); scrollTo(href.slice(1)) } : undefined}
                                             style={{ display: 'block', fontSize: '14px', color: 'rgba(255,255,255,0.4)', textDecoration: 'none', marginBottom: '12px', transition: 'color 0.2s' }}
-                                            onMouseEnter={e => e.currentTarget.style.color = '#fff'}
-                                            onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.4)'}
+                                            onMouseEnter={e => (e.currentTarget.style.color = '#fff')}
+                                            onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.4)')}
                                         >{label}</a>
                                     ))}
                                 </div>
                             ))}
                         </div>
                     </div>
-
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
                         <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.14)' }}>© 2026 OpsHive. Built with ♥ in London.</span>
                         <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.14)' }}>Powered by Google ADK · Gemini AI · Vertex AI</span>
